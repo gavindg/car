@@ -1,4 +1,9 @@
-main
-main.dSYM/
+# secret
 notes
 .vscode/
+cpr.dSYM/
+
+# make it yourself
+cpr
+src/tests.cpp
+.clangd

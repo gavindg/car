@@ -95,7 +95,7 @@ private:
     }
 
 public:
-    Screen(const struct winsize & sizeInfo) : Matrix<frag>(sizeInfo.ws_row, sizeInfo.ws_col) {
+    Screen(const struct winsize & sizeInfo) : Matrix<frag>(sizeInfo.ws_row-1, sizeInfo.ws_col) {
         for (size_t i{0}; i < _m; ++i) {
             for (size_t j{0}; j < _n; ++j) {
                 get(i, j) = frag(j, i, ' ');
