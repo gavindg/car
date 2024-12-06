@@ -4,22 +4,26 @@
 #include <iostream>
 
 struct frag {
-    char color;   // this is dumb
+    char color;   // this is awesome
     size_t x,y;
+    double depth;
 
-    frag(size_t x, size_t y, char col) {
+    frag(size_t x, size_t y, char col, double depth) {
         frag(x, y);
         this->color = col;
+        this->depth = depth;
     }
 
     frag(size_t x, size_t y) {
         this->x = x;
         this->y = y;
         color = '\0';
+        depth = -1;
     }
 
+    // should this b illegal ?
     frag() {
-        frag(0, 0, '\0');
+        frag(0, 0);
     }
 
     frag(const frag & other) {

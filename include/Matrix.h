@@ -51,6 +51,7 @@ public:
         return _n;
     }
 
+    /*
     virtual bool set(std::initializer_list<T> l) {
         if (l.size() != _m * _n) return false;
 
@@ -61,6 +62,7 @@ public:
         }
         return true;
     }
+    */
 
     friend std::ostream & operator<<(std::ostream & os, const Matrix & mat) {
         mat.print(os);
@@ -70,7 +72,29 @@ public:
 
 
 // TODO: put this in a different file...
-class Screen : private Matrix<frag> {
+// TODO: and rename it to "Frame"
+
+template <typename T>
+class ScreenSizeBuffer : protected Matrix<T> {
+public:
+    ScreenSizeBuffer (const struct winsize & sizeInfo, T initialValue) : Matrix<T>(sizeInfo.ws_row-1, sizeInfo.ws_col) {
+        for (size_t i{0}; i < Matrix<T>::_m; ++i) {
+            for (size_t j{0}; j < Matrix<T>::_n; ++j) {
+                Matrix<T>::get(i, j) = initialValue;
+            }
+        }
+    }
+
+    ScreenSizeBuffer(const struct winsize & sizeInfo) : Matrix<T>(sizeInfo.ws_row-1, sizeInfo.ws_col) {
+        for (size_t i{0}; i < Matrix<T>::_m; ++i) {
+            for (size_t j{0}; j < Matrix<T>::_n; ++j) {
+                Matrix<T>::get(i, j) = {};
+            }
+        }
+    }
+};
+
+class Screen : private ScreenSizeBuffer<frag> {
 private:
     void guideMarks() {
         // top left
@@ -95,15 +119,17 @@ private:
     }
 
 public:
-    Screen(const struct winsize & sizeInfo) : Matrix<frag>(sizeInfo.ws_row-1, sizeInfo.ws_col) {
+    Screen(const struct winsize & sizeInfo, bool enableGuideMarks=false) : ScreenSizeBuffer<frag>(sizeInfo) {
         for (size_t i{0}; i < _m; ++i) {
             for (size_t j{0}; j < _n; ++j) {
-                get(i, j) = frag(j, i, ' ');
+                get(i, j) = frag(j, i, ' ', -1);
             }
         }
-        guideMarks();
+        if (enableGuideMarks)
+            guideMarks();
     }
 
+    // draw this screenframe 
     void draw(std::ostream & where) {
         for (size_t i{0}; i < _m * _n; ++i) {
             if (i != 0 && i % _n == 0) where << '\n';
@@ -114,7 +140,7 @@ public:
         }
     }
 
-    // TODO make an out-of-bound function
+    // TODO make an out-of-bounds function
 
     size_t width() const {
         return Matrix::numCols();
@@ -124,23 +150,22 @@ public:
         return Matrix::numRows();
     }
 
-    bool updateFrag(const frag & fragment) {
-        // TODO: this should return false if out of bounds
-        std::cout << "fragx: " << fragment.x << "; fragy: " << fragment.y << std::endl;
-        get(fragment.x, fragment.y).x = fragment.x;
-        std::cout << " set y ";
-        get(fragment.x, fragment.y).y = fragment.y;
-        std::cout << " set color ";
-        get(fragment.x, fragment.y).color = fragment.color;
-        std::cout << " done ." << std::endl;
-        return true;
-    }
-
     const frag & getFrag(size_t i, size_t j) const {
         return get(i, j);
     }
     frag & getFrag(size_t i, size_t j) {
         return get(i, j);
+    }
+};
+
+class ZBuffer : private ScreenSizeBuffer<double> {
+public:
+    ZBuffer(const struct winsize & sizeInfo) : ScreenSizeBuffer<double>(sizeInfo, std::numeric_limits<double>::infinity()) {}
+    const double & get(size_t i, size_t j) const {
+        return Matrix::get(i, j);
+    }
+    double & get(size_t i, size_t j) {
+        return Matrix::get(i, j);
     }
 };
 

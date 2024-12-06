@@ -131,13 +131,11 @@ public:
                 this->z - that.z);
     }
 
-    /* this needs to be friend or else it cant view the members on vec !
-     * though honestly why this doesn't just operate on 'this' is weird... */
+    // operator<<() are friend not food
     friend std::ostream & operator<<(std::ostream & os, const Vector4 & vec) {
         os << '(' << vec.x << ", " << vec.y << ", " << vec.z << ')';
         return os;
     }
-
 };
 
 
