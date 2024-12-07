@@ -2,8 +2,10 @@
 notes
 .vscode/
 cpr.dSYM/
+tests.dSYM/
 
 # make it yourself
 cpr
+tests
 src/tests.cpp
 .clangd

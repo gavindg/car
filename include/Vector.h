@@ -67,26 +67,36 @@ public:
         }
         return true;
     }
+
+    // not really recommended for use,
+    // just used in some cases for faster math
+    double & operator[](size_t ind) {
+        return _data[ind];
+    }
+
+    const double & operator[](size_t ind) const {
+        return _data[ind];
+    }
 };
 
-class Vector2 : private Vector {
+class Vector2 : public Vector {
 public:
     Vector2() : Vector(2) {};
     Vector2(double x, double y) : Vector({x, y}) {};
 
     ~Vector2() override = default;
 
-    double x() const {
+    const double & x() const {
         return Vector::_data[0];
     }
-    double x() {
+    double & x() {
         return Vector::_data[0];
     }
 
-    double y() const {
+    const double & y() const {
         return Vector::_data[1];
     }
-    double y() {
+    double & y() {
         return Vector::_data[1];
     }
 
@@ -96,46 +106,64 @@ public:
     }
 };
 
-class Vector4 {
+class Vector4 : public Vector {
 public:
-    double x;
-    double y;
-    double z;
-    double w;
+    Vector4() : Vector({0, 0, 0, 0}) {}
 
     Vector4(double x, double y, double z, double w=0) 
-        : x(x), y(y), z(z), w(w) {}
+        : Vector({x, y, z, w}) {}
 
     double magnitude() const {
-        return std::sqrt((x * x) + (y * y) + (z * z));
+        return std::sqrt((x() * x()) + (y() * y()) + (z() * z()));
     }
 
-    bool operator==(const Vector4 & to) const {
-        // todo: fix ts
-        // note: i think this is more complicated than it seems...
-        // because of the 'w' dimension
-        return x == to.x &&
-            y == to.y &&
-            z == to.z;
+    const double & x() const {
+        return Vector::_data[0];
+    }
+    double & x() {
+        return Vector::_data[0];
+    }
+
+    const double & y() const {
+        return Vector::_data[1];
+    }
+    double & y() {
+        return Vector::_data[1];
+    }
+
+    const double & z() const {
+        return Vector::_data[2];
+    }
+    double & z() {
+        return Vector::_data[2];
+    }
+
+    const double & w() const {
+        return Vector::_data[3];
+    }
+    double & w() {
+        return Vector::_data[3];
     }
 
     Vector4 operator+(const Vector4 & that) const {
-        return Vector4(this->x + that.x,
-                this->y + that.y,
-                this->z + that.z);
+        return Vector4(this->x() + that.x(),
+                this->y() + that.y(),
+                this->z() + that.z());
     }
 
     Vector4 operator-(const Vector4 & that) const {
-        return Vector4(this->x - that.x,
-                this->y - that.y,
-                this->z - that.z);
+        return Vector4(this->x() - that.x(),
+                this->y() - that.y(),
+                this->z() - that.z());
     }
 
-    // operator<<() are friend not food
+    /* this needs to be friend or else it cant view the members on vec !
+     * though honestly why this doesn't just operate on 'this' is weird... */
     friend std::ostream & operator<<(std::ostream & os, const Vector4 & vec) {
-        os << '(' << vec.x << ", " << vec.y << ", " << vec.z << ')';
+        os << '(' << vec.x() << ", " << vec.y() << ", " << vec.z() << ')';
         return os;
     }
+
 };
 
 
@@ -143,9 +171,9 @@ class VMath {
 public:
     static double distance(const Vector4 & from, const Vector4 & to) {
         return std::sqrt(
-            std::pow(to.x - from.x, 2) +
-            std::pow(to.y - from.y, 2) +
-            std::pow(to.z - from.z, 2)
+            std::pow(to.x() - from.x(), 2) +
+            std::pow(to.y() - from.y(), 2) +
+            std::pow(to.z() - from.z(), 2)
         );
     }
 
