@@ -160,7 +160,7 @@ public:
     /* this needs to be friend or else it cant view the members on vec !
      * though honestly why this doesn't just operate on 'this' is weird... */
     friend std::ostream & operator<<(std::ostream & os, const Vector4 & vec) {
-        os << '(' << vec.x() << ", " << vec.y() << ", " << vec.z() << ')';
+        os << '(' << vec.x() << ", " << vec.y() << ", " << vec.z() << ", " << vec.w() << ')';
         return os;
     }
 

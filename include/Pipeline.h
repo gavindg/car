@@ -9,8 +9,9 @@
 
 namespace pipeline {
     void run(Scene & scene, const struct viewport & vp);
-    void rasterize(Screen & screen, Mesh & m, std::vector<std::vector<frag>> frags);
-    void transform(Scene & scene);
+    // void rasterize(Mesh & m, const struct viewport & vp, std::vector<std::vector<frag>> & frags);
+    void rasterize(Mesh & m, const struct viewport & vp, std::vector<frag> & frags);  // , std::vector<std::vector<frag>> & frags) {
+    void transform(Scene & scene, double angleDelt);
     void project(Scene & scene, const struct viewport & vp);
 }
 

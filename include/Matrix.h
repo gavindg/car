@@ -149,35 +149,35 @@ public:
     }
 };
 
-class Screen : private ScreenSizeBuffer<frag> {
+class Screen : private ScreenSizeBuffer<char> {
 private:
     void guideMarks() {
         // top left
-        get(0, 0).color = 'O';
-        get(1, 0).color = 'O';
-        get(0, 1).color = 'O';
+        get(0, 0) =  'O';
+        get(1, 0) = 'O';
+        get(0, 1) = 'O';
 
         // top right
-        get(0, _n-1).color = 'O';
-        get(0, _n-2).color = 'O';
-        get(1, _n-1).color = 'O';
+        get(0, _n-1) = 'O';
+        get(0, _n-2) = 'O';
+        get(1, _n-1) = 'O';
 
         // bottom left
-        get(_m-1, 0).color = 'O';
-        get(_m-2, 0).color = 'O';
-        get(_m-1, 1).color = 'O'; 
+        get(_m-1, 0) = 'O';
+        get(_m-2, 0) = 'O';
+        get(_m-1, 1) = 'O'; 
 
         // bottom right
-        get(_m-1, _n-1).color = 'O';
-        get(_m-2, _n-1).color = 'O';
-        get(_m-1, _n-2).color = 'O';
+        get(_m-1, _n-1) = 'O';
+        get(_m-2, _n-1) = 'O';
+        get(_m-1, _n-2) = 'O';
     }
 
 public:
-    Screen(const struct viewport & sizeInfo, bool enableGuideMarks=false) : ScreenSizeBuffer<frag>(sizeInfo) {
+    Screen(const struct viewport & sizeInfo, bool enableGuideMarks=false) : ScreenSizeBuffer<char>(sizeInfo) {
         for (size_t i{0}; i < _m; ++i) {
             for (size_t j{0}; j < _n; ++j) {
-                get(i, j) = frag(j, i, ' ', -1);
+                get(i, j) = '\0'; // frag(j, i, ' ', -1);
             }
         }
         if (enableGuideMarks)
@@ -189,12 +189,16 @@ public:
     }
     
     // new draw
-    void draw(std::ostream & where) {
+    void draw(std::ostream & where, std::vector<frag> frags) {
+        for (const struct frag & f : frags) {
+            _matr[f.y * _n + f.x] = f.color;
+        }
+
         for (size_t row{_m}; row > 0; --row) {
             for (size_t col{0}; col < _n; ++col) {
                 size_t pos{(row - 1) * _n + col};
-                if (_matr[pos].color != '\0') {
-                    where << _matr[pos].color;
+                if (_matr[pos] != '\0') {
+                    where << _matr[pos];
                 }
                 else where << ' ';
             }
@@ -226,17 +230,17 @@ public:
         return Matrix::numRows();
     }
 
-    const frag & getFrag(size_t i, size_t j) const {
+    const char & getFrag(size_t i, size_t j) const {
         return get(i, j);
     }
-    frag & getFrag(size_t i, size_t j) {
+    char & getFrag(size_t i, size_t j) {
         return get(i, j);
     }
 
     void clear() {
         for (size_t i{0}; i < _m; ++i) {
             for (size_t j{0}; j < _n; ++j) {
-                get(i, j) = frag(j, i, ' ', -1);
+                get(i, j) = '\0'; // frag(j, i, ' ', -1);
             }
         }
         guideMarks();

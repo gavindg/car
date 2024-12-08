@@ -3,7 +3,7 @@
 // world space transformations
 
 void transformations::translate(Mesh & m, const Vector4 & displacement) {
-    std::cout << " guess who just got called >:] " << std::endl;
+    // std::cout << " guess who just got called >:] " << std::endl;
     Matrix4 translation;
     translation.set({
         1.0, 0.0, 0.0, displacement.x(),

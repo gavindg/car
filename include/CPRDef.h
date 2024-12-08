@@ -23,32 +23,21 @@ struct camerasize {
 };
 
 struct frag {
-    char color;
     size_t x,y;
+    char color;
     double depth;
 
-    frag(size_t x, size_t y, char col, double depth) {
-        frag(x, y);
-        this->color = col;
-        this->depth = depth;
-    }
+    frag(size_t x, size_t y, char col, double depth) : x(x), y(y), color(col), depth(depth) {}
 
-    frag(size_t x, size_t y) {
-        this->x = x;
-        this->y = y;
-        color = '\0';
-        depth = -1;
-    }
+    frag(size_t x, size_t y) : x(x), y(y), color('\0'), depth(-1) {}
 
-    // should this b illegal ?
-    frag() {
-        frag(0, 0);
-    }
+    frag() : x(0), y(0), color('\0'), depth(-1) {}
 
     frag(const frag & other) {
         this->x = other.x;
         this->y = other.y;
         this->color = other.color;
+        this->depth = other.depth;
     }
 
     frag & operator=(const frag & other) {
@@ -57,6 +46,7 @@ struct frag {
         this->x = other.x;
         this->y = other.y;
         this->color = other.color;
+        this->depth = other.depth;
         
         return *this;
     }
