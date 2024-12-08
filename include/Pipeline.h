@@ -5,10 +5,12 @@
 #include "Mesh.h"
 #include "Matrix.h"
 #include "Scene.h"
+#include "CPRDef.h"
 
 namespace pipeline {
-    void run(Scene & scene, Screen & screenFrame);
+    void run(Scene & scene, const struct viewport & vp);
     void rasterize(Screen & screen, Mesh & m, std::vector<std::vector<frag>> frags);
+    void transform(Scene & scene);
 }
 
 #endif

@@ -5,8 +5,21 @@
 #include <iostream>
 
 struct viewport {
+    viewport() {}
+    constexpr viewport(size_t width, size_t height) : width(width), height(height) {}
+
     size_t width;
     size_t height;
+};
+
+struct camerasize {
+    camerasize() {}
+    constexpr camerasize(double l, double r, double t, double b, double n, double f) 
+    : l(l), r(r), t(t), b(b), n(n), f(f) {}
+
+    double l, r;    // left and right
+    double t, b;    // top and bottom
+    double n, f;    // near and far: note that far < near < 0 b.c. camera faces -z
 };
 
 struct frag {

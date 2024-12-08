@@ -115,7 +115,6 @@ public:
     Matrix4(std::initializer_list<double> init) : Matrix(4, 4, init) {}
 
     // Multiply a matrix into a vector
-    // TODO make this work with arbitrarily sized vectors ? 
     Vector4 operator*(const Vector4 & vec) const {
         Vector4 out;
         for (size_t row{0}; row < Matrix::_m; ++row) {
@@ -129,12 +128,11 @@ public:
 
 
 // TODO: put this in a different file...
-// TODO: and rename it to "Frame"
 
 template <typename T>
 class ScreenSizeBuffer : protected Matrix<T> {
 public:
-    ScreenSizeBuffer (const struct winsize & sizeInfo, T initialValue) : Matrix<T>(sizeInfo.ws_row-1, sizeInfo.ws_col) {
+    ScreenSizeBuffer (const struct viewport & sizeInfo, T initialValue) : Matrix<T>(sizeInfo.height-1, sizeInfo.width) {
         for (size_t i{0}; i < Matrix<T>::_m; ++i) {
             for (size_t j{0}; j < Matrix<T>::_n; ++j) {
                 Matrix<T>::get(i, j) = initialValue;
@@ -142,7 +140,7 @@ public:
         }
     }
 
-    ScreenSizeBuffer(const struct winsize & sizeInfo) : Matrix<T>(sizeInfo.ws_row-1, sizeInfo.ws_col) {
+    ScreenSizeBuffer(const struct viewport & sizeInfo) : Matrix<T>(sizeInfo.height-1, sizeInfo.width) {
         for (size_t i{0}; i < Matrix<T>::_m; ++i) {
             for (size_t j{0}; j < Matrix<T>::_n; ++j) {
                 Matrix<T>::get(i, j) = {};
@@ -176,7 +174,7 @@ private:
     }
 
 public:
-    Screen(const struct winsize & sizeInfo, bool enableGuideMarks=false) : ScreenSizeBuffer<frag>(sizeInfo) {
+    Screen(const struct viewport & sizeInfo, bool enableGuideMarks=false) : ScreenSizeBuffer<frag>(sizeInfo) {
         for (size_t i{0}; i < _m; ++i) {
             for (size_t j{0}; j < _n; ++j) {
                 get(i, j) = frag(j, i, ' ', -1);
@@ -186,7 +184,27 @@ public:
             guideMarks();
     }
 
-    // draw this screenframe 
+    void about() {
+        std::cout << "I'm a screen with " << numRows() << " rows and " << numCols() << " columns" <<std::endl;
+    }
+    
+    // new draw
+    void draw(std::ostream & where) {
+        for (size_t row{_m}; row > 0; --row) {
+            for (size_t col{0}; col < _n; ++col) {
+                size_t pos{(row - 1) * _n + col};
+                if (_matr[pos].color != '\0') {
+                    where << _matr[pos].color;
+                }
+                else where << ' ';
+            }
+            where << '\n';
+        }
+    }
+
+
+    // old draw
+    /*
     void draw(std::ostream & where) {
         for (size_t i{0}; i < _m * _n; ++i) {
             if (i != 0 && i % _n == 0) where << '\n';
@@ -196,6 +214,7 @@ public:
             else where << ' ';
         }
     }
+    */
 
     // TODO make an out-of-bounds function
 
@@ -226,7 +245,7 @@ public:
 
 class ZBuffer : private ScreenSizeBuffer<double> {
 public:
-    ZBuffer(const struct winsize & sizeInfo) : ScreenSizeBuffer<double>(sizeInfo, std::numeric_limits<double>::infinity()) {}
+    ZBuffer(const struct viewport & sizeInfo) : ScreenSizeBuffer<double>(sizeInfo, std::numeric_limits<double>::infinity()) {}
     const double & get(size_t i, size_t j) const {
         return Matrix::get(i, j);
     }

@@ -24,13 +24,16 @@
 int main() {
     struct winsize size;    // this should probably be my own struct
     ioctl(STDOUT_FILENO, TIOCGWINSZ, &size);
+    viewport vp{size.ws_col, size.ws_row};
+    std::cout << "viewport width: " << vp.width << "; viewport height: " << vp.height << std::endl;
     std::cout << "width: "<< size.ws_col<<  "; height: " <<size.ws_row << std::endl;
 
-    Screen screen{size, true};
-
     // Initialize "Scene"
-    Scene scene(models::TEST_PLANE);
-    // Scene scene{models::DEFAULT_CUBE};
+    Scene scene{models::CANNONICAL_CUBE, Camera(Camera::CENTERED_16_9)};
+    transformations::scale(scene.mesh, {2, 2, 1});
+    transformations::translate(scene.mesh, {0, 0, -5});
+    // Scene scene{models::DEFAULT_CUBE, Camera(Camera::CENTERED_16_9)};
+    pipeline::run(scene, vp);
 
     // transformations::scale(scene.mesh, {20, -20, 1});
     
@@ -48,8 +51,6 @@ int main() {
         3, 2, 1,
     });
     */
-
-    pipeline::run(scene, screen);
 
     return 0;
 }

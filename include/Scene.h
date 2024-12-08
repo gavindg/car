@@ -8,6 +8,7 @@ class Scene {
 public:
     Scene() {}
     Scene(const Mesh & mesh) : mesh(mesh) {}
+    Scene(const Mesh & mesh, Camera cam) : mesh(mesh), camera(cam) {}
 
     Mesh mesh;
     Camera camera;

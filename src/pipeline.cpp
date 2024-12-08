@@ -5,29 +5,17 @@
 #include "Pipeline.h"
 #include "Transformations.h"
 
-void pipeline::run(Scene & scene, Screen & screen) {
+void pipeline::run(Scene & scene, const struct viewport & vp) {
+    std::cout << "running in a viewport with height " << vp.height << " and width " << vp.width << std::endl;
+    Screen screen(vp);
     std::vector<std::vector<frag>> frags;
-    scene.mesh.printVerts();
+    
+    // pipeline !!
+    transformations::orthographic(scene.mesh, scene.camera);
+    transformations::viewport(scene.mesh, vp);
     rasterize(screen, scene.mesh, frags);
     screen.draw(std::cout);
     screen.clear();
-
-    /*
-    std::cout << "ready to translate?" << std::endl;
-    std::cin.ignore();
-    
-    transformations::translate(scene.mesh, {20, 0, 0});
-    rasterize(screen, scene.mesh, frags);
-    screen.draw(std::cout);
-    */
-
-    std::cout << "ready to scale?" << std::endl;
-    std::cin.ignore();
-    
-    transformations::scale(scene.mesh, {2, 1, 1});
-    rasterize(screen, scene.mesh, frags);
-    scene.mesh.printVerts();
-    screen.draw(std::cout);
 }
 
 void pipeline::rasterize(Screen & screen, Mesh & m, std::vector<std::vector<frag>> frags) {
@@ -52,4 +40,16 @@ void pipeline::rasterize(Screen & screen, Mesh & m, std::vector<std::vector<frag
     frags = fragLists;
 }
 
+// old
+//
+/*
 
+void pipeline::run(Scene & scene, Screen & screen) {
+    std::vector<std::vector<frag>> frags;
+    scene.mesh.printVerts();
+    rasterize(screen, scene.mesh, frags);
+    screen.draw(std::cout);
+    screen.clear();
+}
+
+ */

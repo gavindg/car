@@ -52,6 +52,25 @@ void transformations::orthographic(Mesh & mesh, const Camera & cam) {
     }
 }
 
+// unsquish the vertices of the mesh from the cannonical cube to viewport space
+// TODO: change this to properly work with y positive going down!
+void transformations::viewport(Mesh & m, const struct viewport & vp) {
+    double width_div2{vp.width / 2.0};
+    double height_div2{vp.height / 2.0};   // - because in viewport space 
+
+    Matrix4 scaleElement{
+        scaleFromVector({width_div2, height_div2, 1, 1})
+    };
+    Matrix4 translateElement{
+        translationFromVector({width_div2, height_div2, 0, 1})
+    };
+
+    for (size_t vertInd{0}; vertInd < m.numVerts(); ++vertInd) {
+        m.applyTransformation(vertInd, scaleElement);
+        m.applyTransformation(vertInd, translateElement);
+    }
+}
+
 
 Matrix4 transformations::scaleFromVector(const Vector4 & amount) {
     return {

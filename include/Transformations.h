@@ -9,7 +9,7 @@ namespace transformations {
     void translate(Mesh & m, const Vector4 & displacement);
     void scale(Mesh & m, const Vector4 & amount);
     void orthographic(Mesh & mesh, const Camera & cam);
-    void viewport(Mesh & m, const viewport & vp);
+    void viewport(Mesh & m, const struct viewport & vp);
 
     Matrix4 translationFromVector(const Vector4 & displacement);
     Matrix4 scaleFromVector(const Vector4 & amount);

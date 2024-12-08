@@ -11,7 +11,7 @@ private:
     // check if point q is in half plane defined by p1, p2
     bool inHalfPlane(const Vector2 & a, const Vector2 & b, const Vector2 & q) const {
         return ((a.y() - b.y()) * (q.x() - a.x()))
-         + ((b.x() - a.x()) * (q.y() - a.y())) <= 0; // TODO double check if this should be >
+         + ((b.x() - a.x()) * (q.y() - a.y())) >= 0; // TODO double check if this should be >
     }
 
 public: 
