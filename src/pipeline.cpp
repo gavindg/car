@@ -4,19 +4,34 @@
 #include "Matrix.h"
 #include "Pipeline.h"
 #include "Transformations.h"
+#include "math.h"
+
+double degToRad(double degrees);    // TODO move this declaraion to a header file somewhere
 
 void pipeline::run(Scene & scene, const struct viewport & vp) {
-    std::cout << "running in a viewport with height " << vp.height << " and width " << vp.width << std::endl;
+    // FIXME should scene be const ?
     Screen screen(vp);
     std::vector<std::vector<frag>> frags;
     
     // pipeline !!
-    transformations::orthographic(scene.mesh, scene.camera);
-    transformations::viewport(scene.mesh, vp);
+    transform(scene);
+    project(scene, vp);
     rasterize(screen, scene.mesh, frags);
     screen.draw(std::cout);
     screen.clear();
 }
+
+void pipeline::transform(Scene & scene) {
+    transformations::rotate(scene.mesh, {0, 0, 1}, degToRad(45.0));
+    transformations::scale(scene.mesh, {2, 2, 1});
+    transformations::translate(scene.mesh, {0, 0, -5});
+}
+
+void pipeline::project(Scene & scene, const struct viewport & vp) {
+    transformations::orthographic(scene.mesh, scene.camera);
+    transformations::viewport(scene.mesh, vp);
+}
+
 
 void pipeline::rasterize(Screen & screen, Mesh & m, std::vector<std::vector<frag>> frags) {
     // "rasterize" and create a vec of fragments per triangle
@@ -38,6 +53,12 @@ void pipeline::rasterize(Screen & screen, Mesh & m, std::vector<std::vector<frag
         fragLists.push_back({frags});
     }
     frags = fragLists;
+}
+
+// helper
+
+double degToRad(double degrees) {
+    return degrees * M_PI / 180.0;
 }
 
 // old
