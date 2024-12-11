@@ -12,6 +12,7 @@ namespace pipeline {
     // void rasterize(Mesh & m, const struct viewport & vp, std::vector<std::vector<frag>> & frags);
     void rasterize(Mesh & m, const struct viewport & vp, std::vector<frag> & frags);  // , std::vector<std::vector<frag>> & frags) {
     void transform(Scene & scene, double angleDelt);
+    void shade(std::vector<frag> & frags);
     void project(Scene & scene, const struct viewport & vp);
 }
 

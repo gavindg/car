@@ -63,10 +63,17 @@ public:
 
     // ith row, jth column
     virtual const T & get(size_t i, size_t j) const {
-        if (i < 0 || i > _m - 1 || j < 0 || j > _n - 1) throw std::out_of_range("Matrix indexed out of bounds.");
+        if (i < 0 || i > _m - 1 || j < 0 || j > _n - 1) {
+            std::cerr << "Matrix indexed out of bounds. No index (" << i << ", " << j << ") in a " << _m << " by " << _n << " matrix." << std::endl;
+            throw std::out_of_range("");
+        }
         return _matr[i * _n + j];
     }
     virtual T & get(size_t i, size_t j) {
+        if (i < 0 || i > _m - 1 || j < 0 || j > _n - 1) {
+            std::cerr << "Matrix indexed out of bounds. No index (" << i << ", " << j << ") in a " << _m << " by " << _n << " matrix." << std::endl;
+            throw std::out_of_range("");
+        }
         return _matr[i * _n + j];
     }
     virtual size_t numRows() const {
@@ -184,10 +191,6 @@ public:
             guideMarks();
     }
 
-    void about() {
-        std::cout << "I'm a screen with " << numRows() << " rows and " << numCols() << " columns" <<std::endl;
-    }
-    
     // new draw
     void draw(std::ostream & where, std::vector<frag> frags) {
         for (const struct frag & f : frags) {
@@ -249,13 +252,20 @@ public:
 
 class ZBuffer : private ScreenSizeBuffer<double> {
 public:
-    ZBuffer(const struct viewport & sizeInfo) : ScreenSizeBuffer<double>(sizeInfo, std::numeric_limits<double>::infinity()) {}
+    ZBuffer(const struct viewport & sizeInfo, double initialValue) : ScreenSizeBuffer<double>(sizeInfo, initialValue) {}
+    ZBuffer(const struct viewport & sizeInfo) : ScreenSizeBuffer<double>(sizeInfo, 2.0) {}
+
+    void about() {
+        std::cout << "hello. I am " << Matrix::_m << " by " << Matrix::_n << std::endl;
+    }
+
     const double & get(size_t i, size_t j) const {
         return Matrix::get(i, j);
     }
     double & get(size_t i, size_t j) {
         return Matrix::get(i, j);
     }
+
 };
 
 #endif

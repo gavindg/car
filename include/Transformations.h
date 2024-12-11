@@ -11,7 +11,6 @@ namespace transformations {
     void scale(Mesh & m, const Vector4 & amount);
     void rotate(Mesh & m, const Vector4 & axis, double degree);
 
-    
     Matrix4 translationFromVector(const Vector4 & displacement);
     Matrix4 scaleFromVector(const Vector4 & amount);
     Matrix4 rotateFromVector(const Vector4 & axis, double degree);

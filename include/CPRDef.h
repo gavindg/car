@@ -26,18 +26,22 @@ struct frag {
     size_t x,y;
     char color;
     double depth;
+    size_t triangleInd;    // this is used for the debug triangle ind. shader
 
-    frag(size_t x, size_t y, char col, double depth) : x(x), y(y), color(col), depth(depth) {}
+    frag(size_t x, size_t y, char col, double depth, size_t triangleInd) : x(x), y(y), color(col), depth(depth), triangleInd(triangleInd) {}
 
-    frag(size_t x, size_t y) : x(x), y(y), color('\0'), depth(-1) {}
+    frag(size_t x, size_t y, char col, double depth) : x(x), y(y), color(col), depth(depth), triangleInd(8) {}
 
-    frag() : x(0), y(0), color('\0'), depth(-1) {}
+    frag(size_t x, size_t y) : x(x), y(y), color('\0'), depth(-1), triangleInd(8) {}
+
+    frag() : x(0), y(0), color('\0'), depth(-1), triangleInd(8) {}
 
     frag(const frag & other) {
         this->x = other.x;
         this->y = other.y;
         this->color = other.color;
         this->depth = other.depth;
+        this->triangleInd = other.triangleInd;
     }
 
     frag & operator=(const frag & other) {
@@ -47,6 +51,7 @@ struct frag {
         this->y = other.y;
         this->color = other.color;
         this->depth = other.depth;
+        this->triangleInd = other.triangleInd;
         
         return *this;
     }

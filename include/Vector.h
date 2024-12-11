@@ -33,6 +33,26 @@ public:
             _data[i] = other._data[i];
         }
     }
+    
+    virtual ~Vector() {
+        delete [] _data;
+    }
+
+    virtual double magnitude() const {
+        double sum{0.0};
+        for (size_t i{0}; i < _len; ++i) {
+            sum += _data[i] * _data[i];
+        }
+        return std::sqrt(sum);
+    }
+
+    void normalize() {
+        double mag{magnitude()};
+        if (mag == 0.0) return;
+        for (size_t i{0}; i < _len; ++i) {
+            _data[i] /= mag;
+        }
+    }
 
     Vector & operator=(const Vector & other) {
         if (this == &other) return *this;
@@ -46,16 +66,24 @@ public:
         return *this;
     }
 
-    virtual ~Vector() {
-        delete [] _data;
+
+
+    virtual Vector operator+(const Vector & that) const {
+        if (_len != that._len) throw;
+        Vector sum(_len);
+        for (size_t i{0}; i < _len; ++i) {
+            sum._data[i] = _data[i] + that._data[i];
+        }
+        return sum;
     }
 
-    virtual double magnitude() const {
-        double sum{0.0};
+    virtual Vector operator-(const Vector & that) const {
+        if (_len != that._len) throw;
+        Vector sum(_len);
         for (size_t i{0}; i < _len; ++i) {
-            sum += _data[i] * _data[i];
+            sum._data[i] = _data[i] - that._data[i];
         }
-        return std::sqrt(sum);
+        return sum;
     }
 
     virtual bool operator==(const Vector & to)  {
@@ -76,6 +104,18 @@ public:
 
     const double & operator[](size_t ind) const {
         return _data[ind];
+    }
+
+    friend std::ostream & operator<<(std::ostream & stream, Vector vec) {
+        stream << '(';
+        for (size_t i{0}; i < vec._len; ++i) {
+            stream << vec._data[i];
+            if (i <= vec._len - 2) {
+                stream << ',';
+            }
+        }
+        stream << ')';
+        return stream;
     }
 };
 
@@ -100,11 +140,68 @@ public:
         return Vector::_data[1];
     }
 
-    friend std::ostream & operator<<(std::ostream & os, const Vector2 & vec) {
+    virtual Vector2 operator+(const Vector2 & that) const {
+        return Vector2(this->x() + that.x(),
+                this->y() + that.y());
+    }
+
+    virtual Vector2 operator-(const Vector2 & that) const {
+        return Vector2(this->x() - that.x(),
+                this->y() - that.y());
+    }
+
+};
+
+class Vector3 : public Vector {
+public:
+    Vector3() : Vector(3) {};
+    Vector3(double x, double y, double z) : Vector({x, y, z}) {};
+
+    ~Vector3() override = default;
+
+    const double & x() const {
+        return Vector::_data[0];
+    }
+    double & x() {
+        return Vector::_data[0];
+    }
+
+    const double & y() const {
+        return Vector::_data[1];
+    }
+    double & y() {
+        return Vector::_data[1];
+    }
+
+    const double & z() const {
+        return Vector::_data[2]; 
+    }
+
+    double & z() {
+        return Vector::_data[3];
+    }
+
+    virtual Vector3 operator+(const Vector3 & that) const {
+        return Vector3(this->x() + that.x(),
+                this->y() + that.y(),
+                this->z() + that.z());
+    }
+
+    virtual Vector3 operator-(const Vector3 & that) const {
+        return Vector3(this->x() - that.x(),
+                this->y() - that.y(),
+                this->z() - that.z());
+    }
+
+
+    /*
+    friend std::ostream & operator<<(std::ostream & os, const Vector3 & vec) {
         vec.print(os);
         return os;
     }
+    */
 };
+
 
 class Vector4 : public Vector {
 public:
@@ -145,13 +242,13 @@ public:
         return Vector::_data[3];
     }
 
-    Vector4 operator+(const Vector4 & that) const {
+    virtual Vector4 operator+(const Vector4 & that) const {
         return Vector4(this->x() + that.x(),
                 this->y() + that.y(),
                 this->z() + that.z());
     }
 
-    Vector4 operator-(const Vector4 & that) const {
+    virtual Vector4 operator-(const Vector4 & that) const {
         return Vector4(this->x() - that.x(),
                 this->y() - that.y(),
                 this->z() - that.z());
@@ -159,11 +256,12 @@ public:
 
     /* this needs to be friend or else it cant view the members on vec !
      * though honestly why this doesn't just operate on 'this' is weird... */
+    /*
     friend std::ostream & operator<<(std::ostream & os, const Vector4 & vec) {
         os << '(' << vec.x() << ", " << vec.y() << ", " << vec.z() << ", " << vec.w() << ')';
         return os;
     }
-
+    */
 };
 
 
@@ -176,6 +274,8 @@ public:
             std::pow(to.z() - from.z(), 2)
         );
     }
+
+    
 
     VMath() = delete;   //static class
 };
