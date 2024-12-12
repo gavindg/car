@@ -13,7 +13,7 @@ void transformations::translate(Mesh & m, const Vector4 & displacement) {
     });
 
     for (size_t vertInd{0}; vertInd < m.numVerts(); ++vertInd) {
-        m.applyTransformation(vertInd, translation);
+        m.applyVertexTransformation(vertInd, translation);
     }
 }
 
@@ -21,7 +21,7 @@ void transformations::scale(Mesh & m, const Vector4 & amount) {
     Matrix4 scaleMatrix{transformations::scaleFromVector(amount)};
 
     for (size_t vertInd{0}; vertInd < m.numVerts(); ++vertInd) {
-        m.applyTransformation(vertInd, scaleMatrix);
+        m.applyVertexTransformation(vertInd, scaleMatrix);
     }
 }
 
@@ -29,10 +29,9 @@ void transformations::rotate(Mesh & m, const Vector4 & axis, double degree) {
     Matrix4 rotationMatrix{transformations::rotateFromVector(axis, degree)};
 
     for (size_t vertInd{0}; vertInd < m.numVerts(); ++vertInd) {
-        m.applyTransformation(vertInd, rotationMatrix);
+        m.applyVertexTransformation(vertInd, rotationMatrix);
     }
 }
-
 
 // camera transformations
 
@@ -57,30 +56,31 @@ void transformations::orthographic(Mesh & mesh, const Camera & cam) {
 
     // in orthographic projection, translate and then scale
     for (size_t vertInd{0}; vertInd < mesh.numVerts(); ++vertInd) {
-        mesh.applyTransformation(vertInd, translateElement);
-        mesh.applyTransformation(vertInd, scaleElement);
+        mesh.applyVertexTransformation(vertInd, translateElement);
+        mesh.applyVertexTransformation(vertInd, scaleElement);
     }
 }
 
 // unsquish the vertices of the mesh from the cannonical cube to viewport space
-// TODO: change this to properly work with y positive going down!
 void transformations::viewport(Mesh & m, const struct viewport & vp) {
     double width_div2{vp.width / 2.0};
     double height_div2{vp.height / 2.0};   // - because in viewport space 
 
     Matrix4 scaleElement{
-        scaleFromVector({width_div2, height_div2, 1, 1})
+        scaleFromVector({width_div2, height_div2, 0.5, 1})
     };
+    // translate -0.5 in the z direction so that we don't get depth in range -1..0
     Matrix4 translateElement{
-        translationFromVector({width_div2, height_div2, 0, 1})
+        translationFromVector({width_div2, height_div2, -0.5, 1})
     };
 
     for (size_t vertInd{0}; vertInd < m.numVerts(); ++vertInd) {
-        m.applyTransformation(vertInd, scaleElement);
-        m.applyTransformation(vertInd, translateElement);
+        m.applyVertexTransformation(vertInd, scaleElement);
+        m.applyVertexTransformation(vertInd, translateElement);
     }
 }
 
+// generating transformation matrices
 
 Matrix4 transformations::scaleFromVector(const Vector4 & amount) {
     return {

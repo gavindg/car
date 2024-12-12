@@ -1,11 +1,11 @@
 # secret
 notes
 .vscode/
-cpr.dSYM/
+car.dSYM/
 tests.dSYM/
+output.txt
 
-# make it yourself
-cpr
+car
 tests
 src/tests.cpp
 .clangd

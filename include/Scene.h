@@ -7,8 +7,12 @@
 class Scene {
 public:
     Scene() {}
-    Scene(const Mesh & mesh) : mesh(mesh) {}
-    Scene(const Mesh & mesh, Camera cam) : mesh(mesh), camera(cam) {}
+    Scene(const Mesh & mesh, bool validate=true) : mesh(mesh) {
+        if (validate) this->mesh.validate();
+    }
+    Scene(const Mesh & mesh, Camera cam, bool validate=true) : mesh(mesh), camera(cam) {
+        if (validate) this->mesh.validate();
+    }
 
     Mesh mesh;
     Camera camera;

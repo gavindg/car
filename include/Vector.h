@@ -66,7 +66,22 @@ public:
         return *this;
     }
 
+    Vector operator*(double s) const {
+        Vector scaled(_len);
+        for (size_t i{0}; i < _len; ++i) {
+            scaled._data[i] = s * _data[i];
+        }
+        return scaled;
+    }
 
+    friend Vector operator*(double s, const Vector & v) {
+        Vector scaled(v._len);
+        for (size_t i{0}; i < v._len; ++i) {
+            scaled._data[i] = s * v._data[i];
+        }
+        return scaled;
+        
+    }
 
     virtual Vector operator+(const Vector & that) const {
         if (_len != that._len) throw;
@@ -252,6 +267,22 @@ public:
         return Vector4(this->x() - that.x(),
                 this->y() - that.y(),
                 this->z() - that.z());
+    }
+
+    Vector4 operator*(double s) const {
+        Vector4 scaled;
+        for (size_t i{0}; i < _len; ++i) {
+            scaled._data[i] = s * _data[i];
+        }
+        return scaled;
+    }
+
+    friend Vector4 operator*(double s, const Vector4 & v) {
+        Vector4 scaled;
+        for (size_t i{0}; i < v._len; ++i) {
+            scaled._data[i] = s * v._data[i];
+        }
+        return scaled;
     }
 
     /* this needs to be friend or else it cant view the members on vec !

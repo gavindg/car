@@ -1,7 +1,9 @@
 #include <vector>
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <thread>
+#include "Scene.h"
 #include "Mesh.h"
 #include "Matrix.h"
 #include "Pipeline.h"
@@ -12,41 +14,91 @@
 double degToRad(double degrees);    // TODO move this declaraion to a header file somewhere
 void untransform(Scene & scene, double angleDelt);  // maybe useless ?
 
-void pipeline::run(Scene & scene, const struct viewport & vp) {
-    Screen screen(vp, true);
-    double angleDelt{20};
-    
-    for (int i{0}; i < 37; ++i) {
-        std::vector<frag> frags;
-        Scene working{scene};
+void pipeline::render(const Scene & scene, const struct viewport & vp, Screen & screen) { 
+    Scene modifiedScene{scene};
+    std::vector<frag> frags;
+    uniform uni;
+    uni.material = modifiedScene.mesh.mat;
 
-        // pipeline !!
-        std::cout << std::endl;
-        transform(working, angleDelt * i);
-        project(working, vp);
-        rasterize(working.mesh, vp, frags);
-        shade(frags);
-        // system("clear");
-        screen.draw(std::cout, frags);
-        screen.clear();
-        // untransform(working, angleDelt * i);
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(500));
-    }
+    project(modifiedScene, vp);
+    rasterize(modifiedScene.mesh, vp, frags);
+    shade(frags, uni);
+    draw(screen, frags);
 }
 
-void pipeline::shade(std::vector<frag> & frags) {
+void pipeline::render(const Scene & scene, const struct viewport & vp, Screen & screen, std::ofstream * file) { 
+    Scene modifiedScene{scene};
+    std::vector<frag> frags;
+    uniform uni;
+    uni.material = modifiedScene.mesh.mat;
+
+    project(modifiedScene, vp);
+    rasterize(modifiedScene.mesh, vp, frags);
+    shade(frags, uni);
+    draw(screen, frags, file);
+}
+
+void pipeline::draw(Screen & screen, const std::vector<frag> & frags) {
+    screen.draw({&std::cout}, frags);
+    screen.clearBuffer();
+}
+
+void pipeline::draw(Screen & screen, const std::vector<frag> & frags, std::ofstream * file) {
+    if (file->is_open()) 
+        screen.draw({&std::cout, file}, frags);
+    else
+        screen.draw({&std::cout}, frags);
+    screen.clearBuffer();
+}
+
+
+void pipeline::run_rotationSample(const Scene & scene, const struct viewport & vp) {
+    Screen screen(vp, true);
+    double angleDelt{20};
+    std::ofstream file;
+    file.open("output.txt");
+    
+    // rotate the mesh 360 degrees, twice.
+    for (int i{0}; i < 37; ++i) {
+        Scene working{scene};
+        transform(working, angleDelt * i);
+        render(working, vp, screen, &file);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+    }
+
+    file.close();
+}
+
+void pipeline::run_oneshot(const Scene & scene, const struct viewport & vp) {
+    Screen screen(vp, true);
+    Scene working{scene};
+    transformations::scale(working.mesh, {2, 2, 2});
+    transformations::translate(working.mesh, {0, 0, -5});
+    render(working, vp, screen);
+}
+
+void pipeline::shade(std::vector<frag> & frags, uniform & uni) {
+    double minDepth = 3;
+    double maxDepth = -1;
+
+    for (const auto & f : frags) {
+        minDepth = std::min(minDepth, f.depth);
+        maxDepth = std::max(maxDepth, f.depth);
+    }
+
+    uni.maxDepth = 1;
+    uni.minDepth = 0;
+
     for (auto & f : frags) {
-        shade::fragment(f);
+        shade::fragment(f, uni);
     }
 }
 
 void pipeline::transform(Scene & scene, double angleDelt) {
-    // transformations::rotate(scene.mesh, {0, 0, 1}, degToRad(angleDelt));
     Vector4 axis{1, 1, 0};
     axis.normalize();
     transformations::rotate(scene.mesh, axis, degToRad(angleDelt));
-    transformations::scale(scene.mesh, {2, 2, 1});
+    transformations::scale(scene.mesh, {2.5, 2.5, 2.5});
     transformations::translate(scene.mesh, {0, 0, -5});
 }
 
@@ -66,7 +118,7 @@ void pipeline::rasterize(Mesh & m, const struct viewport & vp, std::vector<frag>
                 // test if this point is inside a triangle in this squashed mesh
                 Vector2 fragPos{
                     static_cast<double>(x) + 0.5,
-                    static_cast<double>(y) + 0.5
+                    static_cast<double>(y) - 0.5
                 };
                 bool inside{m.insideTriangle(triangleInd, fragPos)};
                 if (inside) {
@@ -76,9 +128,7 @@ void pipeline::rasterize(Mesh & m, const struct viewport & vp, std::vector<frag>
                         if (depth < zbuf.get(y, x)) {
                             // only push a frag if its closer than another frag
                             zbuf.get(y, x) = depth;
-                            char color = 0;
-                            // if (triangleInd != 0) std::cout << "wow its " << triangleInd << "!!" << std::endl;
-                            frags.push_back({x, y, color, depth, triangleInd});
+                            frags.push_back({x, y, 0, depth, triangleInd});
                         }
                     }
                 }

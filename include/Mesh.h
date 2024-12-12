@@ -3,7 +3,9 @@
 
 #include "Triangle.h"
 #include "Matrix.h"
+#include "CARDef.h"
 #include <vector>
+#include <cassert>
 
 class Mesh {
 private: 
@@ -12,8 +14,10 @@ private:
     size_t _triCount;
 
 public:
+    uniform::materialtype mat;
+
     Mesh() {}       // default constructor
-    Mesh(std::initializer_list<Vector4> verts, std::initializer_list<size_t> tris) {
+    Mesh(std::initializer_list<Vector4> verts, std::initializer_list<size_t> tris, uniform::materialtype material) : mat(material) {
         setVerts(verts);
         setTris(tris);
     }
@@ -26,11 +30,12 @@ public:
             _tris.push_back(triInd);
         }
         _triCount = other._triCount;
+        mat = other.mat;
     }
 
     void setVerts(std::initializer_list<Vector4> verts) {
         for (auto it{std::begin(verts)}; it != std::end(verts); ++it) {
-            _verts.push_back({*it});     // TODO double check if this is weird
+            _verts.push_back({*it});
         }
     }
 
@@ -41,10 +46,23 @@ public:
         }
 
         for (auto it{std::begin(tris)}; it != std::end(tris); ++it) {
-            _tris.push_back({*it});     // TODO double check if this is weird
+            _tris.push_back({*it});
         }
 
         _triCount = tris.size() / 3;
+    }
+
+    void validate() {
+        // this function can be used to check if a mesh is valid.
+        // it is called automatically when a scene is constructed 
+        // unless you set the "validate" flag to false when constructing.
+        //
+        // this function does not check thing such as whether a triangle's
+        // vertices are defined in clockwise order or other similar user errors
+        // that are sometimes erroneous, but otherwise desired.
+        
+        assert(_tris.size() % 3 == 0);
+        assert(_triCount == _tris.size() / 3);
     }
 
     size_t numTriangles() { return _triCount; }
@@ -60,11 +78,15 @@ public:
         };
 
         return toInterp.barycentricInterp(
-                point,
-                {_verts[_tris[startInd]].z(),
-                _verts[_tris[startInd+1]].z(),
-                _verts[_tris[startInd+2]].z()
-        });
+            point,
+            _verts[_tris[startInd]].z(),
+            _verts[_tris[startInd+1]].z(),
+            _verts[_tris[startInd+2]].z()
+        );
+    }
+
+    Vector4 & getVert(size_t ind) {
+        return _verts[ind];
     }
 
     bool insideTriangle(size_t ind, Vector2 pixel) { 
@@ -75,18 +97,12 @@ public:
             {_verts[_tris[startInd]].x(), _verts[_tris[startInd]].y()}, 
             {_verts[_tris[startInd + 1]].x(), _verts[_tris[startInd + 1]].y()}, 
             {_verts[_tris[startInd + 2]].x(), _verts[_tris[startInd + 2]].y()}
-        };  // actually get barycentric coords here FIXME !!!!
+        };
 
-        /*
-        std::cout << "testing Triangle((" << _verts[startInd].x << ',' << _verts[startInd] <<
-            '(' << _verts[startInd+1].x << ',' << _verts[startInd+1].y <<')' <<
-            '(' << _verts[startInd+2].x << ',' << _verts[startInd+2].y << ")) vs" << pixel << std::endl;
-            */
-        
         return toCheck.inside({pixel.x() + 0.5, pixel.y() + 0.5}); 
     }
 
-    void applyTransformation(size_t vert, const Matrix4 & transformationMatrix) {
+    void applyVertexTransformation(size_t vert, const Matrix4 & transformationMatrix) {
         _verts[vert] = transformationMatrix * _verts[vert];
     }
 
@@ -99,7 +115,7 @@ public:
         for (auto vert : _verts) {
             std::cout << vert << ", ";
         }
-        std::cout << std::endl;
+        std::cout << ']' << std::endl;
     }
 };
 

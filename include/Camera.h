@@ -2,7 +2,7 @@
 #define CAMERA_HPP
 
 #include "Vector.h"
-#include "CPRDef.h"
+#include "CARDef.h"
 
 // TODO: implement me !
 class Camera {

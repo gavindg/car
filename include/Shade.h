@@ -1,10 +1,10 @@
 #ifndef SHADE_HPP
 #define SHADE_HPP
 
-#include <CPRDef.h>
+#include "CARDef.h"
 
 namespace shade {
-    void fragment(frag & f);
+    void fragment(frag & f, const uniform & uni);
 }
 
 #endif

@@ -3,10 +3,7 @@
 
 #include <stddef.h>
 #include "Vector.h"
-#include "CPRDef.h"
-
-// for screen size stuff
-#include <sys/ioctl.h>
+#include "CARDef.h"
 
 template <typename T>
 class Matrix {
@@ -191,8 +188,7 @@ public:
             guideMarks();
     }
 
-    // new draw
-    void draw(std::ostream & where, std::vector<frag> frags) {
+    void draw(const std::vector<std::ostream *> & streams, std::vector<frag> frags) {
         for (const struct frag & f : frags) {
             _matr[f.y * _n + f.x] = f.color;
         }
@@ -201,29 +197,17 @@ public:
             for (size_t col{0}; col < _n; ++col) {
                 size_t pos{(row - 1) * _n + col};
                 if (_matr[pos] != '\0') {
-                    where << _matr[pos];
+                    for (auto & where : streams)
+                        *where << _matr[pos];
                 }
-                else where << ' ';
+                else 
+                    for (auto & where : streams)
+                        *where << ' ';
             }
-            where << '\n';
+            for (auto & where : streams)
+                *where << '\n';
         }
     }
-
-
-    // old draw
-    /*
-    void draw(std::ostream & where) {
-        for (size_t i{0}; i < _m * _n; ++i) {
-            if (i != 0 && i % _n == 0) where << '\n';
-            if (_matr[i].color != '\0') {
-                where << _matr[i].color;
-            }
-            else where << ' ';
-        }
-    }
-    */
-
-    // TODO make an out-of-bounds function
 
     size_t width() const {
         return Matrix::numCols();
@@ -240,10 +224,10 @@ public:
         return get(i, j);
     }
 
-    void clear() {
+    void clearBuffer() {
         for (size_t i{0}; i < _m; ++i) {
             for (size_t j{0}; j < _n; ++j) {
-                get(i, j) = '\0'; // frag(j, i, ' ', -1);
+                get(i, j) = '\0';
             }
         }
         guideMarks();

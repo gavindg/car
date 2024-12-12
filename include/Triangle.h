@@ -49,12 +49,13 @@ public:
         return {w1, w2};
     }
 
-    double barycentricInterp(Vector2 point, Vector3 weights) {
+    template <typename T>
+    T barycentricInterp(Vector2 point, T w0, T w1, T w2) {
         Vector2 bary{getBarycentric(point)};
 
-        return (1 - bary[0] - bary[1]) * weights[0] +
-            bary[0] * weights[1] +
-            bary[1] * weights[2];
+        return (1 - bary[0] - bary[1]) * w0 +
+            bary[0] * w1 +
+            bary[1] * w2;
     }
 };
 
