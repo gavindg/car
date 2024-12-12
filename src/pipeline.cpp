@@ -11,8 +11,7 @@
 #include "math.h"
 #include "Shade.h"
 
-double degToRad(double degrees);    // TODO move this declaraion to a header file somewhere
-void untransform(Scene & scene, double angleDelt);  // maybe useless ?
+double degToRad(double degrees);
 
 void pipeline::render(const Scene & scene, const struct viewport & vp, Screen & screen) { 
     Scene modifiedScene{scene};
@@ -108,6 +107,7 @@ void pipeline::project(Scene & scene, const struct viewport & vp) {
 }
 
 
+// based on pseudocode from CS112 Lecture 7, slide 11 by Shaung Zhao
 void pipeline::rasterize(Mesh & m, const struct viewport & vp, std::vector<frag> & frags) {
     ZBuffer zbuf(vp, 2.0);
     // "rasterize" and create a vec of fragments per triangle
@@ -141,10 +141,3 @@ void pipeline::rasterize(Mesh & m, const struct viewport & vp, std::vector<frag>
 double degToRad(double degrees) {
     return degrees * M_PI / 180.0;
 }
-
-void untransform(Scene & scene, double angleDelt) {
-    transformations::translate(scene.mesh, {0, 0, 5});
-    transformations::scale(scene.mesh, {0.5, 0.5, 1});
-    transformations::rotate(scene.mesh, {0, 0, 1}, -degToRad(angleDelt));
-}
-

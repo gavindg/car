@@ -77,7 +77,8 @@ public:
             _verts[_tris[startInd+2]]
         };
 
-        return toInterp.barycentricInterp(
+        // return toInterp.barycentricInterp(
+        return toInterp.perspectiveCorrectInterp(
             point,
             _verts[_tris[startInd]].z(),
             _verts[_tris[startInd+1]].z(),
