@@ -1,6 +1,7 @@
 # CAR
 a `C`++ `A`scii `R`enderer
-written by Gavin Gee
+
+![rotating cube gif](./samples/depth_rotation.gif)
 
 ## About
 This project is a simple software rasterizer that renders scenes to your terminal.
